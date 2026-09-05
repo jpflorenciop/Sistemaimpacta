@@ -1,12 +1,14 @@
 package impacta.model;
 
+
+
+import excecoes.AcaoLotadaException;
+import excecoes.VoluntarioJaInscritoException;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import impacta.excecoes.AcaoLotadaException;
-import impacta.excecoes.VoluntarioJaInscritoException;
 
 public abstract class Acao {
 
@@ -78,4 +80,16 @@ public abstract class Acao {
     public List<Voluntario> getVoluntarios() {
         return Collections.unmodifiableList(voluntarios);
     }
+
+    public boolean possuiVoluntario(Voluntario voluntario) {
+    return true;
+    }
+
+    public boolean estaLotada() {
+        return true;
+    }
+
+    public void adicionarVoluntario(Voluntario voluntario) {
+    }
+
 }

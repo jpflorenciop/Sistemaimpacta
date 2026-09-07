@@ -3,7 +3,7 @@ package impacta.model;
 import excecoes.AcaoLotadaException;
 import excecoes.EmailDuplicadoException;
 import excecoes.VoluntarioJaInscritoException;
-import impacta.model.Oficina;
+
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -14,9 +14,19 @@ import java.util.Map;
 
 public class Impacta {
 
+    /*
+    guarda os voluntatios usando o email
+     */
     private final Map<String, Voluntario> voluntarios;
+
+    /*
+    guarda as acoes usando o id
+     */
     private final Map<Integer, Acao> acoes;
 
+    /*
+    controla  o proximo id que sera dado a acao
+     */
     private int proximoIdAcao;
 
     public Impacta() {
@@ -31,6 +41,9 @@ public class Impacta {
             String email,
             String matricula) {
 
+        /*
+        nao permite cadastrar dois voluntarios com o mesmo email
+         */
         if (voluntarios.containsKey(email)) {
             throw new EmailDuplicadoException(
                     "Já existe um voluntário cadastrado com este e-mail.");
@@ -47,6 +60,9 @@ public class Impacta {
     public String exibirVoluntario(String email) {
         Voluntario voluntario = voluntarios.get(email);
 
+        /*
+        se o email nao estiver cadastrado retorna null
+         */
         if (voluntario == null) {
             return null;
         }
@@ -59,8 +75,15 @@ public class Impacta {
     }
 
     public String[] listarVoluntarios() {
+
+        /*
+        retorna os valores do hashmap em lista pra poder ordenar
+         */
         List<Voluntario> lista = new ArrayList<>(voluntarios.values());
 
+        /*
+        ordema pela pontuacao e se tiver empate pelo nome
+         */
         lista.sort(
                 Comparator
                         .comparingInt(Voluntario::getPontuacaoImpacto)
@@ -94,6 +117,9 @@ public class Impacta {
             int maxParticipantes,
             int qtdMudas) {
 
+        /*
+        pega o id atual e incrementa para proxima acao
+         */
         int id = proximoIdAcao++;
 
         Plantio plantio = new Plantio(
@@ -105,6 +131,9 @@ public class Impacta {
                 qtdMudas
         );
 
+        /*
+        salva o plantio do hashmap usando o id
+         */
         acoes.put(id, plantio);
 
         return id;
@@ -162,23 +191,38 @@ public class Impacta {
             String emailVoluntario,
             int idAcao) {
 
+        /*
+        procura o voluntario pelo email e pela acao do id
+         */
         Voluntario voluntario = voluntarios.get(emailVoluntario);
         Acao acao = acoes.get(idAcao);
 
+        /*
+        se algum deles nao existir nao faz a inscricao
+         */
         if (voluntario == null || acao == null) {
             return false;
         }
 
+        /*
+        impede que o mesmo voluntario seja inscrito duas vezes
+         */
         if (acao.possuiVoluntario(voluntario)) {
             throw new VoluntarioJaInscritoException(
                     "O voluntário já está inscrito nesta ação.");
         }
 
+        /*
+        impede a inscricao quando a acao atingir o limite
+         */
         if (acao.estaLotada()) {
             throw new AcaoLotadaException(
                     "A ação já atingiu sua capacidade máxima.");
         }
 
+        /*
+        adiciona a acao em voluntario e vice versa
+         */
         acao.adicionarVoluntario(voluntario);
         voluntario.adicionarAcao(acao);
 
@@ -188,12 +232,19 @@ public class Impacta {
     public String exibirDetalhesAcao(int idAcao) {
         Acao acao = acoes.get(idAcao);
 
+        /*
+        busca a acao pelo id
+         */
         if (acao == null) {
             return null;
         }
 
         StringBuilder sb = new StringBuilder();
 
+        /*
+        monta o texto com as informacoes da acao
+        sb.append:adiciona dados no final de uma string
+         */
         sb.append("ID: ").append(acao.getId()).append("\n");
         sb.append("Título: ").append(acao.getTitulo()).append("\n");
         sb.append("Descrição: ").append(acao.getDescricao()).append("\n");
@@ -204,7 +255,9 @@ public class Impacta {
                 .append("/")
                 .append(acao.getMaxParticipantes())
                 .append("\n");
-
+        /*
+        pra cada acao ter informacoes especificas
+         */
         sb.append(acao.getDetalhesEspecificos()).append("\n");
 
         sb.append("Voluntários inscritos:");
@@ -212,6 +265,10 @@ public class Impacta {
         if (acao.getVoluntarios().isEmpty()) {
             sb.append(" Nenhum");
         } else {
+
+            /*
+            percorre todos os voluntarios inscritos na acao
+             */
             for (Voluntario voluntario : acao.getVoluntarios()) {
                 sb.append("\n- ")
                         .append(voluntario.getNome())
